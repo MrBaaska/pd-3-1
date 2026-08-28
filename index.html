@@ -440,6 +440,9 @@
       min-height: calc(100dvh - var(--topbar-height));
       display: flex;
     }
+    .main.fullscreen-main {
+      padding: 0;
+    }
 
     /* Welcome / Dashboard panel */
     .dashboard {
@@ -577,6 +580,14 @@
       flex-direction: column;
       box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
     }
+    .main.fullscreen-main .content-frame-wrap {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      height: calc(100dvh - var(--topbar-height));
+      min-height: calc(100dvh - var(--topbar-height));
+      max-height: calc(100dvh - var(--topbar-height));
+    }
     .frame-titlebar {
       display: flex;
       align-items: center;
@@ -587,6 +598,9 @@
       font-size: 13px;
       color: var(--text-muted);
       min-height: 54px;
+    }
+    .main.fullscreen-main .frame-titlebar {
+      display: none;
     }
     .frame-dot {
       width: 9px; height: 9px;
@@ -599,6 +613,9 @@
       border: none;
       display: block;
       background: transparent;
+    }
+    .main.fullscreen-main #content-frame {
+      min-height: calc(100dvh - var(--topbar-height));
     }
 
     .sidebar-overlay {
@@ -949,6 +966,18 @@
 
       <div class="sidebar-divider"></div>
 
+<div class="sidebar-item">
+        <a href="#" class="sidebar-link danger-link" id="toggle-alert" data-page-key="Ажлын бүртгэл">
+          <i class="fa fa-sitemap"></i> Ажлын бүртгэл
+        </a>
+      </div>
+
+      <div class="sidebar-item">
+        <a href="#" class="sidebar-link danger-link" id="toggle-alert" data-page-key="Хурлын тэмдэглэл">
+          <i class="fa fa-sitemap"></i> Хурлын тэмдэглэл
+        </a>
+      </div>
+
       <div class="sidebar-item">
         <a href="#" class="sidebar-link danger-link" id="toggle-alert" data-page-key="Менежментийн нэгдсэн тогтолцоо">
           <i class="fa fa-sitemap"></i> Менежментийн нэгдсэн тогтолцоо
@@ -1029,6 +1058,10 @@
   };
   const FRAME_STORAGE_PREFIX = 'ubtz:autosave:';
   const EDIT_UNLOCK_CODE = '73$18!502';
+  const FULLSCREEN_PAGE_KEYS = new Set([
+    'Ажлын бүртгэл',
+    'Хурлын тэмдэглэл'
+  ]);
 
   function readLastPage() {
     try {
@@ -1186,6 +1219,8 @@
     'Цахилгаан': 'tsahilgaan.html',
     'Төлөвлөгөө / Сарын ажлын төлөвлөгөө': 'sariin.html',
     'Шийдвэр': 'shiidwer.html',
+    'Ажлын бүртгэл': 'ajliinBvrtgel.html',
+    'Хурлын тэмдэглэл': 'hural.html',
     'Үүрэг даалгавар': 'ita.html',
     'Менежментийн нэгдсэн тогтолцоо': 'anhaar.html',
     'Ажилтануудын мэдээлэл': 'ajiltan.html',
@@ -1457,13 +1492,21 @@
       'img, svg { max-width: 100%; height: auto; }',
       'iframe { max-width: 100%; }',
       'input, textarea, select { max-width: 100%; }',
-      '.container, .wrapper, .dashboard, .main-content { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }',
+      '.container, .wrapper, .dashboard, .main-content, .wrap, .inner, .max-w-7xl { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }',
       '.table-container, .table-wrapper, [class*="table-container"], [class*="table-wrapper"] { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }',
       '@media (max-width: 768px) {',
       '  body { min-width: 0 !important; }',
       '}'
     ].join(' ');
     doc.head.appendChild(style);
+  }
+
+  function syncFramePresentation(pageKey) {
+    const main = document.querySelector('.main');
+    if (!main) {
+      return;
+    }
+    main.classList.toggle('fullscreen-main', FULLSCREEN_PAGE_KEYS.has(pageKey));
   }
 
   function getFrameContentHeight(doc) {
@@ -1654,6 +1697,7 @@
     const frame = document.getElementById('content-frame');
     const frameTitle = document.getElementById('frame-title-label');
     const titleText = clickedElement.textContent.trim().replace(/\s+/g, ' ');
+    syncFramePresentation(pageKey);
     frame.src = resolvePageSrc(pageKey, titleText);
     writeLastPage(pageKey);
     if (frameTitle) {
