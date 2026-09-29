@@ -1002,6 +1002,9 @@
       <div class="sidebar-item">
         <a href="#" class="sidebar-link" id="habea-link" data-page-key="ХАБЭА-н үзлэг"><i class="fa fa-layer-group"></i>ХАБЭА-н үзлэг</a>
       </div>
+      <div class="sidebar-item">
+        <a href="#" class="sidebar-link" id="surgalt-link" data-page-key="Сургалт"><i class="fa fa-graduation-cap"></i>Сургалт</a>
+      </div>
 
       <div class="sidebar-divider"></div>
       <div class="sidebar-item has-sub" onclick="toggleSub(this)">
@@ -1059,7 +1062,8 @@
   const EDIT_UNLOCK_CODE = '86114549';
   const FULLSCREEN_PAGE_KEYS = new Set([
     'Ажлын бүртгэл',
-    'Хурлын тэмдэглэл'
+    'Хурлын тэмдэглэл',
+    'Зааварчилгаа / Тор засагч'
   ]);
 
   function readLastPage() {
@@ -1698,6 +1702,11 @@
     const titleText = clickedElement.textContent.trim().replace(/\s+/g, ' ');
     syncFramePresentation(pageKey);
     frame.src = resolvePageSrc(pageKey, titleText);
+    if (pageKey === 'Зааварчилгаа / Тор засагч' && frame.requestFullscreen) {
+      frame.requestFullscreen().catch(function(error) {
+        console.warn('Video fullscreen request was denied:', error);
+      });
+    }
     writeLastPage(pageKey);
     if (frameTitle) {
       frameTitle.textContent = titleText.toUpperCase();
